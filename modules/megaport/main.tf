@@ -12,7 +12,7 @@ data "megaport_location" "a_end" {
 resource "megaport_mve" "test_mve" {
   location_id = data.megaport_location.a_end.id
   mve_name    = "kd-api-test-atl"
-  image_id    = 33
+  image_id    = 58
   vendor      = "FORTINET"
   size        = "SMALL"
 
