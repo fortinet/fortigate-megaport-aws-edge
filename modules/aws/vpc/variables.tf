@@ -1,0 +1,12 @@
+variable "access_key" {}
+variable "secret_key" {}
+variable "region" {}
+variable "availability_zone" {}
+variable "vpc_cidr" {}
+variable "public_subnet_cidr" {}
+variable "private_subnet_cidr" {}
+variable "fgt_eni1_id" {}
+variable "tag_name_prefix" {}
+variable "tag_name_unique" {}
+variable "wavelength_zone" {}
+variable "bastion_subnet_cidr" {}
