@@ -17,6 +17,18 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
+
+# DX Setup 
+resource "aws_vpn_gateway" "vpn_gw" {
+  count = var.tag_name_unique=="hub" ? 1 : 0
+  vpc_id = aws_vpc.vpc.id
+  amazon_side_asn = 64513
+  tags = {
+    Name = "demo-vgw"
+  }
+}
+
+
 # Create Carrier Gateway
 resource "aws_ec2_carrier_gateway" "cgw" {
   vpc_id = aws_vpc.vpc.id
@@ -49,8 +61,9 @@ resource "aws_route_table" "public_rt_region" {
   vpc_id = aws_vpc.vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-	gateway_id = aws_internet_gateway.igw.id 
+	  gateway_id = aws_internet_gateway.igw.id 
   }
+  # propagating_vgws = aws_vpn_gateway.vpn_gw
   tags = {
     Name = "${var.tag_name_prefix}-${var.tag_name_unique}-public-rt"
   }

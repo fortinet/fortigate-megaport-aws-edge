@@ -78,7 +78,10 @@ module "hub-fgt" {
   sslvpn_tunnel_ip = var.sslvpn_tunnel_ip
 
   carrier_ip = module.spoke-fgt.eip_public_ip
+  megaport_architecture = var.megaport_architecture
+  mve_public_ip = module.megaport.vxc_info
 }
+
 
 module "spoke-fgt" {
   source     = ".//modules/ftnt/spoke-fgt-sslvpn"
@@ -112,20 +115,31 @@ module "spoke-fgt" {
   sslvpn_username  = var.sslvpn_username
   sslvpn_password  = module.hub-fgt.sslvpn_password
   sslvpn_port      = var.sslvpn_port
-  sslvpn_public_ip = module.hub-fgt.eip_public_ip
+  sslvpn_public_ip = var.megaport_architecture ? module.megaport.vxc_info : module.hub-fgt.eip_public_ip
   sslvpn_tunnel_ip = var.sslvpn_tunnel_ip
 
   public_ip = module.spoke-fgt.eip_public_ip
 }
 
+module "megaport" {
+  source              = "./modules/megaport"
+  access_key          = var.access_key
+  secret_key          = var.secret_key
+  region              = var.region
+  connection_id       = var.connection_id
+  vgw_id              = module.hub-vpc.vgw_id
+  megaport_access_key = var.megaport_access_key
+  megaport_secret_key = var.megaport_secret_key
+  ca_cert             = module.certs.ca_cert
+  fgt_key             = module.certs.hub_key
+  fgt_cert            = module.certs.hub_cert
+  fgt_gui_port        = var.fgt_gui_port
+  sslvpn_username     = var.sslvpn_username
+  sslvpn_port         = var.sslvpn_port
+  sslvpn_tunnel_ip    = var.sslvpn_tunnel_ip
 
-# module "megaport" {
-#   source        = ".//modules/megaport"
-#   access_key    = var.access_key
-#   secret_key    = var.secret_key
-#   region        = var.region
-#   connection_id = var.connection_id
-
-#   megaport_access_key = var.megaport_access_key
-#   megaport_secret_key = var.megaport_secret_key
-# }
+  vpc_cidr            = var.hub_vpc_cidr
+  license_type        = var.license_type
+  fgt_byol_license    = var.spoke_fgt_byol_license
+  fgt_fortiflex_token = var.spoke_fgt_fortiflex_token
+}

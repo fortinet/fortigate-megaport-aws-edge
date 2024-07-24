@@ -1,5 +1,5 @@
 output "fgt_id" {
-  value = aws_instance.fgt.id
+  value = var.megaport_architecture ? null : aws_instance.fgt[0].id
 }
 
 output "eip_public_ip" {

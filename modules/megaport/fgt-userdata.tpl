@@ -14,6 +14,18 @@ set admin-sport ${gui_port}
 end
 
 config system interface
+edit "vxc"
+set vdom "root"
+set ip ${fgt_inner_ip} 255.255.255.252
+set allowaccess https ssh ping
+set vlanforward enable
+set role lan
+set interface "port2"
+set vlanid ${inner_vlan}
+next
+end
+
+config system interface
 edit port1
 set mode dhcp
 set allowaccess https ping ssh fgfm
@@ -126,11 +138,28 @@ config vpn ssl settings
     end
 end
 
+config router bgp
+set as ${fgt_asn}
+set router-id ${fgt_inner_ip}
+set ebgp-multipath enable
+set graceful-restart enable
+config neighbor
+edit ${aws_bgp_ip}
+set capability-graceful-restart enable
+set remote-as ${vgw_asn}
+set password ${dx_password}
+next
+end
+config redistribute "connected"
+set status enable
+end
+end
+
 config firewall policy
     edit 1
         set name "inbound-spoke-fgts"
         set srcintf "ssl.root"
-        set dstintf "port2"
+        set dstintf "vxc"
         set action accept
         set srcaddr "spoke-fgts-agroup"
         set dstaddr "rfc-1918-subnets"
@@ -141,7 +170,7 @@ config firewall policy
     next
     edit 2
         set name "outbound-spoke-fgts"
-        set srcintf "port2"
+        set srcintf "vxc"
         set dstintf "ssl.root"
         set action accept
         set srcaddr "rfc-1918-subnets"

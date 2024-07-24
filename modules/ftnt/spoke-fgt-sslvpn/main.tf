@@ -39,7 +39,6 @@ resource "aws_iam_role_policy" "iam-role-policy" {
 	  "Effect": "Allow",
       "Action": [
 		"ec2:DescribeInstances",
-		"ec2:DescribeNetworkInterfaces",
 		"ec2:DescribeRegions",
 		"ec2:DescribeVpcEndpoints",
 		"eks:DescribeCluster",
@@ -59,38 +58,38 @@ variable "fgtami" {
   default = {
     "7.0" = {
       "arm" = {
-        "byol" = "FortiGate-VMARM64-AWS *(7.0.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-		"flex" = "FortiGate-VMARM64-AWS *(7.0.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.0.*)*|8gc40z1w65qjt61p9ps88057n"
+        "byol" = "FortiGate-VMARM64-AWS *(7.0.*)*"
+		"flex" = "FortiGate-VMARM64-AWS *(7.0.*)*"
+        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.0.*)*"
       },
       "intel" = {
-        "byol" = "FortiGate-VM64-AWS *(7.0.*)*|dlaioq277sglm5mw1y1dmeuqa"
-		"flex" = "FortiGate-VM64-AWS *(7.0.*)*|dlaioq277sglm5mw1y1dmeuqa"
-        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.0.*)*|2wqkpek696qhdeo7lbbjncqli"
+        "byol" = "FortiGate-VM64-AWS *(7.0.*)*"
+		"flex" = "FortiGate-VM64-AWS *(7.0.*)*"
+        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.0.*)*"
       }
     },
     "7.2" = {
       "arm" = {
-        "byol" = "FortiGate-VMARM64-AWS *(7.2.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-		"flex" = "FortiGate-VMARM64-AWS *(7.2.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.2.*)*|8gc40z1w65qjt61p9ps88057n"
+        "byol" = "FortiGate-VMARM64-AWS *(7.2.*)*"
+		"flex" = "FortiGate-VMARM64-AWS *(7.2.*)*"
+        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.2.*)*"
       },
       "intel" = {
-        "byol" = "FortiGate-VM64-AWS *(7.2.*)*|dlaioq277sglm5mw1y1dmeuqa"
-		"flex" = "FortiGate-VM64-AWS *(7.2.*)*|dlaioq277sglm5mw1y1dmeuqa"
-        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.2.*)*|2wqkpek696qhdeo7lbbjncqli"
+        "byol" = "FortiGate-VM64-AWS *(7.2.*)*"
+		"flex" = "FortiGate-VM64-AWS *(7.2.*)*"
+        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.2.*)*"
       }
     },
     "7.4" = {
       "arm" = {
-        "byol" = "FortiGate-VMARM64-AWS *(7.4.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-		"flex" = "FortiGate-VMARM64-AWS *(7.4.*)*|33ndn84xbrajb9vmu5lxnfpjq"
-        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.4.*)*|8gc40z1w65qjt61p9ps88057n"
+        "byol" = "FortiGate-VMARM64-AWS *(7.4.*)*"
+		"flex" = "FortiGate-VMARM64-AWS *(7.4.*)*"
+        "payg" = "FortiGate-VMARM64-AWSONDEMAND *(7.4.*)*"
       },
       "intel" = {
-        "byol" = "FortiGate-VM64-AWS *(7.4.*)*|dlaioq277sglm5mw1y1dmeuqa"
-		"flex"  = "FortiGate-VM64-AWS *(7.4.*)*|dlaioq277sglm5mw1y1dmeuqa"
-        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.4.*)*|2wqkpek696qhdeo7lbbjncqli"
+        "byol" = "FortiGate-VM64-AWS *(7.4.*)*"
+		"flex"  = "FortiGate-VM64-AWS *(7.4.*)*"
+        "payg" = "FortiGate-VM64-AWSONDEMAND *(7.4.*)*"
       }
     }
   }
@@ -100,8 +99,7 @@ locals {
   instance_family = split(".", "${var.instance_type}")[0]
   graviton = (local.instance_family == "c6g") || (local.instance_family == "c6gn") || (local.instance_family == "c7g") || (local.instance_family == "c7gn") ? true : false
   arch = local.graviton == true ? "arm" : "intel"
-  ami_search_string = split("|", "${var.fgtami[var.fortios_version][local.arch][var.license_type]}")[0]
-  product_code = split("|", "${var.fgtami[var.fortios_version][local.arch][var.license_type]}")[1]
+  ami_search_string = var.fgtami[var.fortios_version][local.arch][var.license_type]
 }
 
 data "aws_ami" "fortigate_ami" {
@@ -111,10 +109,6 @@ data "aws_ami" "fortigate_ami" {
   filter {
     name   = "name"
     values = [local.ami_search_string]
-  }
-  filter {
-    name   = "product-code"
-    values = [local.product_code]
   }
 }
 
@@ -217,7 +211,7 @@ resource "aws_instance" "fgt" {
     gui_port      = var.fgt_gui_port
     sv_user       = var.sslvpn_username
     sv_passwd     = var.sslvpn_password
-    sv_public_ip  = var.sslvpn_public_ip
+    sv_public_ip  = var.sslvpn_public_ip 
     sv_port       = var.sslvpn_port
     vpc_cidr      = var.vpc_cidr
 

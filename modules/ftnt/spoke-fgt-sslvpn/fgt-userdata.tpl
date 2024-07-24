@@ -67,15 +67,6 @@ config user peer
     next
 end
 
-config system sdn-connector
-edit aws-instance-role
-set status enable
-set type aws
-set use-metadata-iam enable
-set alt-resource-ip enable
-next
-end
-
 config firewall address
 edit "10.0.0.0/8"
 set subnet 10.0.0.0 255.0.0.0

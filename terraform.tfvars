@@ -23,7 +23,7 @@ wavelength_zone   = "us-east-1-wl1-bna-wlz-1"
 connection_id = ""
 
 # Specify the name of the keypair that the FGTs will use.
-keypair = "kp-poc-common"
+keypair = "test-key"
 
 # Specify the CIDR block which you will be logging into the FGTs from.
 cidr_for_access = "0.0.0.0/0"

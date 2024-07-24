@@ -155,3 +155,8 @@ variable "sslvpn_tunnel_ip" {
 variable "tag_name_unique" {
   default = "automatically handled by terraform modules"
 }
+
+variable "megaport_architecture" {
+  default = true
+  description = "Boolean to determine whether to integrate AWS Region or Local Zone as hub via Megaport MVE"
+}

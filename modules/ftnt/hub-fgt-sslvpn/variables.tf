@@ -26,3 +26,5 @@ variable "sslvpn_username" {}
 variable "sslvpn_tunnel_ip" {}
 variable "sslvpn_port" {}
 variable "carrier_ip" {}
+variable "megaport_architecture" {}
+variable "mve_public_ip" {}
