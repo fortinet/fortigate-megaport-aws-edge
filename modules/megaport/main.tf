@@ -25,7 +25,7 @@ resource "megaport_mve" "test_mve" {
 
   vendor_config = {
   vendor              = "fortinet"
-  license_data        = " "
+  license_data        = filebase64("${path.root}/${var.fgt_byol_license}")
   image_id            = 58
   product_size        = "SMALL"
   ssh_public_key =  data.tls_public_key.private_key_pem-example.public_key_openssh
