@@ -113,7 +113,7 @@ module "spoke-fgt" {
   fgt_cert         = module.certs.spoke_cert
   fgt_gui_port     = var.fgt_gui_port
   sslvpn_username  = var.sslvpn_username
-  sslvpn_password  = module.hub-fgt.sslvpn_password
+  sslvpn_password  = module.megaport.sslvpn_password
   sslvpn_port      = var.sslvpn_port
   sslvpn_public_ip = var.megaport_architecture ? module.megaport.vxc_info : module.hub-fgt.eip_public_ip
   sslvpn_tunnel_ip = var.sslvpn_tunnel_ip

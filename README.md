@@ -68,6 +68,11 @@ ssh -i mve-private-key.pem admin@${module.megaport.vxc_info}
 ## Step 3: Configure Hub Fortigate (Megaport MVE)
 Once SSH'ed into the Fortigate, enable a password and HTTPs access:
 ```
+config system global
+set hostname hub-fgt
+set admintimeout 15
+set admin-sport 8443
+end
 config system interface
 edit port1
 append allowaccess https

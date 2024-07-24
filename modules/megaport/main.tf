@@ -149,10 +149,10 @@ resource "local_file" "mve_user_data_file" {
     sv_passwd      = random_password.spoke-fgt.result
     sv_tunnel_ip   = var.sslvpn_tunnel_ip
 
-    fgt_inner_ip   = cidrhost(megaport_vxc.aws_vxc.csp_connections[0].customer_ip_address,1) #We expect 169.254.1.1
+    fgt_inner_ip   = element(split("/", megaport_vxc.aws_vxc.csp_connections[0].customer_ip_address), 0) #We expect 169.254.1.1
     inner_vlan     = 100 # Looking for megaport_vxc.aws_vxc.a_end.inner_vlan
     fgt_asn        = 64512 #Should be b_end_partner_config.aws_config.asn
-    aws_bgp_ip     = cidrhost(megaport_vxc.aws_vxc.b_end_partner_config.aws_config.amazon_ip_address,1) #We expect 169.254.1.2
+    aws_bgp_ip     = element(split("/", megaport_vxc.aws_vxc.csp_connections[0].amazon_address), 0) #We expect 169.254.1.2
     vgw_asn        = 64513 #Should be b_end_partner_config.aws_config.amazon_asn
     dx_password    = "Megaport" #Should be b_end_partner_config.aws_config.auth_key
 
