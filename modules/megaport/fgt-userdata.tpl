@@ -123,15 +123,18 @@ set as ${fgt_asn}
 set router-id ${fgt_inner_ip}
 set ebgp-multipath enable
 set graceful-restart enable
+config aggregate-address
+edit 1
+set prefix 10.0.0.0/8
+set summary-only enable
+next
+end
 config neighbor
 edit ${aws_bgp_ip}
 set capability-graceful-restart enable
 set remote-as ${vgw_asn}
 set password ${dx_password}
 next
-end
-config redistribute "connected"
-set status enable
 end
 end
 
