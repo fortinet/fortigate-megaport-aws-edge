@@ -12,6 +12,7 @@ set mtu-override enable
 set mtu 9001
 set alias public
 next
+y
 edit port2
 set mode dhcp
 set defaultgw disable

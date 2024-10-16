@@ -82,7 +82,6 @@ module "hub-fgt" {
   mve_public_ip = module.megaport.vxc_info
 }
 
-
 module "spoke-fgt" {
   source     = ".//modules/ftnt/spoke-fgt-sslvpn"
   access_key = var.access_key
@@ -119,6 +118,8 @@ module "spoke-fgt" {
   sslvpn_tunnel_ip = var.sslvpn_tunnel_ip
 
   public_ip = module.spoke-fgt.eip_public_ip
+  mve_public_ip = module.megaport.vxc_info
+  megaport_architecture = var.megaport_architecture
 }
 
 module "megaport" {

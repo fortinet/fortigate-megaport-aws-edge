@@ -124,7 +124,8 @@ resource "aws_security_group_rule" "allow_vpn" {
   from_port         = 10443
   to_port           = 10443
   protocol          = "tcp"
-  cidr_blocks       = ["${var.public_ip}/32"]
+  # cidr_blocks       = ["${var.public_ip}/32"]
+  cidr_blocks = var.megaport_architecture ? ["${var.mve_public_ip}/32"] : ["${var.public_ip}/32"]
   security_group_id = aws_security_group.secgrp.id
 }
 
@@ -144,13 +145,13 @@ resource "aws_security_group" "secgrp" {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = ["10.0.0.0/8"]
   }
   ingress {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = ["10.0.0.0/8"]
     description = "Allow ICMP traffic"
   }
   egress {
@@ -262,7 +263,7 @@ resource "aws_instance" "test_instance" {
   tags = {
     Name = "fortigate-megaport-aws-edge-client-wlz"
   }
-  ami      = data.aws_ssm_parameter.linux-ami.value
+  ami      = "ami-068f11fc61a475095" #data.aws_ssm_parameter.linux-ami.value
   instance_type = "t3.medium"
   key_name      = var.keypair
   private_ip = "10.2.2.71"

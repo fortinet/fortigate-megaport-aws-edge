@@ -14,6 +14,14 @@ Once the Fortigate is deployed by the Terraform module, you can manually upload 
 
 ![License Upload](fortigate-upload.png)
 
+
+Next, generate new key pair, which will be used by your bastion hosts, client instances and the spoke Fortigate.
+```
+aws ec2 create-key-pair --key-name megaport-fortinet-demo --output text > megaport-fortinet-demo.pem
+```
+
+Be sure to change the `keypair` variable in terraform.tfvars to the `megaport-fortinet-demo`!
+
 ## Step 1: Terraform Deployment
 To deploy the Terraform modules, run the following commands from this repository's directory:
 
@@ -62,7 +70,7 @@ Next, login to the hub Fortigate (MVE)
 ```
 terraform output my-private-key > mve-private-key.pem
 chmod 400 mve-private-key.pem
-ssh -i mve-private-key.pem admin@${module.megaport.vxc_info}
+ssh -i mve-private-key.pem admin@$<fortigate-ip>
 ```
 
 ## Step 3: Configure Hub Fortigate (Megaport MVE)
@@ -90,12 +98,61 @@ Next, visit the Fortigate (`https://<your-ip>:8443`) and upload the license file
 
 Next, be sure to copy the files from `mve_userdata.sh` in the (`modules/megaport/` directory) to the Fortigate, as there is presently no mechanism to automatically load the user data. Note that user data can also be uploaded through the Fortigate UI.
 
+## Step 4: Test SSL VPN Status
+To validate the fortigate, first ensure that there are no errors when you copy-paste the `mve_userdata.sh`. 
 
-## Step 4: Test Connectivity
+- To check the connection, `diag vpn ssl list` will show you VPN connection from the client Fortigate. As an example, `from(161.188.0.85)` indicates the Carrier IP of your spoke Fortigate.
+```
+[2358:root]sconn=0x7f1fa2eae800, from(161.188.0.85) task=tunnel2_loop, fd=31(1:1),34(1:1),-1(0:0),-1(0:0),-1(0:0), pending=0
+```
+
+- To view your route table, you can run `get router info routing-table all`. On the hub side, you see `169.254.1.2` corresponding to the Amazon router peer IP.
+
+```
+Routing table for VRF=0
+S*      0.0.0.0/0 [5/0] via 162.43.143.16, port1, [1/0]
+B       10.0.0.0/8 [200/0] is a summary, Null, 00:02:28, [1/0]
+B       10.1.0.0/16 [20/0] via 169.254.1.2 (recursive is directly connected, vxc), 00:02:28, [1/0]
+C       162.43.143.16/31 is directly connected, port1
+C       169.254.1.0/30 is directly connected, vxc
+```
+
+- To learn more about the BGP configuration, you can run `get router info bgp summary` to view neighbors, prefixes, and neighbor state:
+```
+VRF 0 BGP router identifier 169.254.1.1, local AS number 64512
+BGP table version is 1
+2 BGP AS-PATH entries
+0 BGP community entries
+
+Neighbor    V         AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+169.254.1.2 4      64513      14      15        1    0    0 00:04:54        1
+
+Total number of neighbors 1
+```
+
+- To drill into a neighbor, run `get router info bgp neighbor [neighbor-ip] [action]`. Replace `[neighbor-ip]` with an 169.254.1.2 (Amazon peer IP) and recommended actions include: `routes` or `advertised-routes`. 
+```
+get router info bgp neighbor 169.254.1.2 
+received-prefix-filter    show received prefix-list filter from bgp neighbor
+routes                    show neighbor routes
+advertised-routes         show neighbor advertised-routes
+received-routes           show neighbor received routes
+```
+
+- Login to the spoke Fortigate via SSH (or web GUI) and run the command: `get router info routing-table all` to validate routes received from the Hub Fortigate (running in Megaport). You should see 3 routes for RFC1918 addresses. 
+
+## Step 5: Test Connectivity
 To test connectivity from the hub to spoke, visit the `test_instructions_hub` and `test_instructions_spoke` output values (just run `terraform output`).
 
+**Test Ping from Hub (Region) to Spoke (Wavelength Zone)**: Follow the instructions in the `test_instructions_hub` output value.
 
+**Test Ping from Spoke (Wavelength Zone) to Hub (Region)**: Follow the instructions in the `test_instructions_spoke` output value.
 
-
-
+## Terminate Resources
+To terminate the resources for this environment, we need to delete the VGW and destroy the  resources specified by the Terraform state file:
+```
+VGW_ID=$(aws ec2 describe-vpn-gateways --filters "Name=attachment.vpc-id,Values=$(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=fortigate-megaport-aws-edge-hub-vpc" --query "Vpcs[0].VpcId" --output text)" --query "VpnGateways[0].VpnGatewayId" --output text)
+aws ec2 delete-vpn-gateway --vpn-gateway-id $VGW_ID
+terraform destroy -auto-approve
+```
 

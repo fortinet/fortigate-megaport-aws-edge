@@ -28,4 +28,5 @@ variable "sslvpn_public_ip" {}
 variable "sslvpn_port" {}
 variable "sslvpn_tunnel_ip" {}
 variable "public_ip" {}
-
+variable "mve_public_ip" {}
+variable "megaport_architecture" {}
