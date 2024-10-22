@@ -265,6 +265,7 @@ resource "aws_instance" "test_instance" {
   }
   ami      = "ami-068f11fc61a475095" #data.aws_ssm_parameter.linux-ami.value
   instance_type = "t3.medium"
+  user_data = templatefile("${path.module}/test-userdata.tpl" ,{})
   key_name      = var.keypair
   private_ip = "10.2.2.71"
   security_groups = [aws_security_group.secgrp.id]
@@ -297,6 +298,7 @@ resource "aws_instance" "bastion" {
   }
   ami      = data.aws_ssm_parameter.linux-ami.value
   instance_type = "t3.medium"
+  user_data = templatefile("${path.module}/test-userdata.tpl" ,{})
   key_name      = var.keypair
   security_groups = [aws_security_group.bastion-secgrp.id]
   subnet_id = var.public_subnet_id

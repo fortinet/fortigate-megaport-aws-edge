@@ -8,7 +8,6 @@ Overriding variables here keeps the variables.tf as a clean local reference.
 access_key = ""
 secret_key = ""
 
-
 # [MODIFICATION REQUIRED] Provide the credentials to access the Megaport account
 megaport_access_key = ""
 megaport_secret_key = ""
@@ -21,8 +20,8 @@ wavelength_zone   = "us-east-1-wl1-bna-wlz-1"
 # Specify the DX connection ID
 connection_id = ""
 
-# [MODIFICATION REQUIRED] Specify the name of the EXISTING keypair that the AWS EC2 instances will use (ie Spoke FGT, Bastion, and Client instances. Megaport MVE to use it's own.).
-keypair = "megaport-fortinet-demo"
+# [MODIFICATION REQUIRED] Specify the name of the EXISTING keypair created in the prerequisites step in the README.MD. The AWS EC2 instances will use this (ie Spoke FGT, Bastion, and Client instances. Megaport MVE to use it's own.).
+keypair = "aws-key-pair"
 
 # Specify the CIDR block which you will be logging into the FGTs from.
 cidr_for_access = "0.0.0.0/0"
