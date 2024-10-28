@@ -127,10 +127,19 @@ output "my_public_ip" {
 }
 
 
-resource "aws_security_group_rule" "allow_vpn" {
+resource "aws_security_group_rule" "allow_ssl_vpn" {
   type              = "ingress"
   from_port         = 10443
   to_port           = 10443
+  protocol          = "tcp"
+  cidr_blocks       = var.megaport_architecture? ["${var.mve_public_ip}/32"] : ["${var.carrier_ip}/32"]
+  security_group_id = aws_security_group.secgrp.id
+}
+
+resource "aws_security_group_rule" "allow_ipsec_vpn" {
+  type              = "ingress"
+  from_port         = 4500
+  to_port           = 4500
   protocol          = "tcp"
   cidr_blocks       = var.megaport_architecture? ["${var.mve_public_ip}/32"] : ["${var.carrier_ip}/32"]
   security_group_id = aws_security_group.secgrp.id
@@ -212,6 +221,8 @@ resource "aws_instance" "fgt" {
   ebs_optimized = true
   monitoring = true
   user_data = templatefile("${path.module}/fgt-userdata.tpl", {
+    vpn_type       = var.vpn_type
+    vpn_remote_ip  = var.vpn_remote_ip
     ca_cert        = var.ca_cert
     fgt_key        = var.fgt_key
     fgt_cert       = var.fgt_cert

@@ -12,7 +12,6 @@ set mtu-override enable
 set mtu 9001
 set alias public
 next
-y
 edit port2
 set mode dhcp
 set defaultgw disable
@@ -52,7 +51,6 @@ set password ${dx_password}
 next
 end
 end
-
 
 %{ if vpn_type == "SSL" }
 config vpn certificate ca

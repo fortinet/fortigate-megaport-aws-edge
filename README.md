@@ -16,7 +16,8 @@ Once the FortiGate is deployed by the Terraform module, you can manually upload 
 
 Next, generate new key pair, which will be used by your bastion hosts, client instances and the spoke FortiGate.
 ```
-aws ec2 create-key-pair --key-name aws-key-pair --output text > aws-key-pair.pem
+aws ec2 create-key-pair --key-name aws-key-pair --query 'KeyMaterial' --output text > aws-key-pair.pem
+chmod 400 aws-key-pair.pem
 ```
 
 Be sure to change the `keypair` variable in terraform.tfvars to the `aws-key-pair`!

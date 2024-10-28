@@ -32,6 +32,10 @@ tag_name_prefix = "fortigate-megaport-aws-edge"
 # Specify the FortiOS version to use 7.0, 7.2, or 7.4
 fortios_version = "7.4"
 
+# Specify the VPN type to use, SSL or IPsecOverTCP
+# NOTE: IPsecOverTCP requires FortiOS verion 7.4
+vpn_type = "SSL"
+
 /* [MODIFICATION REQUIRED]
 For license_type, specify byol, flex, or payg.
 

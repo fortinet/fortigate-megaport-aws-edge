@@ -69,6 +69,8 @@ module "hub-fgt" {
 
   fgt_public_ip    = var.hub_fgt_public_ip
   fgt_private_ip   = var.hub_fgt_private_ip
+  vpn_type         = var.vpn_type
+  vpn_remote_ip    = module.spoke-fgt.eip_public_ip
   ca_cert          = module.certs.ca_cert
   fgt_key          = module.certs.hub_key
   fgt_cert         = module.certs.hub_cert
@@ -107,6 +109,8 @@ module "spoke-fgt" {
 
   fgt_public_ip    = var.spoke_fgt_public_ip
   fgt_private_ip   = var.spoke_fgt_private_ip
+  vpn_type         = var.vpn_type
+  vpn_remote_ip    = var.megaport_architecture ? module.megaport.vxc_info : module.hub-fgt.eip_public_ip
   ca_cert          = module.certs.ca_cert
   fgt_key          = module.certs.spoke_key
   fgt_cert         = module.certs.spoke_cert
@@ -131,6 +135,8 @@ module "megaport" {
   vgw_id              = module.hub-vpc.vgw_id
   megaport_access_key = var.megaport_access_key
   megaport_secret_key = var.megaport_secret_key
+  vpn_type            = var.vpn_type
+  vpn_remote_ip       = module.spoke-fgt.eip_public_ip
   ca_cert             = module.certs.ca_cert
   fgt_key             = module.certs.hub_key
   fgt_cert            = module.certs.hub_cert

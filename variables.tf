@@ -134,6 +134,13 @@ variable "fgt_gui_port" {
   description = "Provide a gui port for both fgts"
   default     = "8443"
 }
+variable "vpn_type" {
+  description = "Provide VPN type, SSL or IPsecOverTCP [IPsecOverTCP requires FortiOS version 7.4]"
+  default     = "SSL"
+}
+variable "vpn_remote_ip" {
+  default = "automatically handled by terraform modules"
+}
 variable "sslvpn_username" {
   description = "Provide a sslvpn username for the spoke fgt"
   default     = "spoke-fgt"

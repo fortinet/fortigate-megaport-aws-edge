@@ -32,6 +32,7 @@ set alias private
 next
 end
 
+%{ if vpn_type == "SSL" }
 config router static
 edit 1
 set device port2
@@ -164,6 +165,83 @@ config system link-monitor
         set update-static-route disable
     next
 end
+%{ endif }
+
+
+
+
+%{ if vpn_type == "IPsecOverTCP" }
+config vpn ipsec phase1-interface
+edit "ipsec-over-tcp"
+set interface "port1"
+set ike-version 2
+set peertype any
+set net-device disable
+set proposal aes256-sha256
+set transport tcp
+set fortinet-esp enable
+set remote-gw ${vpn_remote_ip}
+set psksecret ${sv_passwd}
+next
+end
+
+config vpn ipsec phase2-interface
+edit "ipsec-over-tcp"
+set phase1name "ipsec-over-tcp"
+set proposal aes256-sha256
+set auto-negotiate enable
+next
+end
+
+
+config router static
+edit 0
+set dst 10.0.0.0 255.0.0.0
+set device "ipsec-over-tcp"
+next
+end
+
+config firewall address
+edit "10.0.0.0/8"
+set subnet 10.0.0.0 255.0.0.0
+next
+edit "172.16.0.0/12"
+set subnet 172.16.0.0 255.240.0.0
+next
+edit "192.168.0.0/16"
+set subnet 192.168.0.0 255.255.0.0
+next
+end
+
+config firewall addrgrp
+edit "rfc-1918-subnets"
+set member "10.0.0.0/8" "172.16.0.0/12" "192.168.0.0/16"
+next
+end
+
+config firewall policy
+edit 0
+set name "vpn_ipsec-over-tcp_local"
+set srcintf "port2"
+set dstintf "ipsec-over-tcp"
+set action accept
+set srcaddr "rfc-1918-subnets"
+set dstaddr "rfc-1918-subnets"
+set schedule "always"
+set service "ALL"
+next
+edit 0
+set name "vpn_ipsec-over-tcp_remote"
+set srcintf "ipsec-over-tcp"
+set dstintf "port2"
+set action accept
+set srcaddr "rfc-1918-subnets"
+set dstaddr "rfc-1918-subnets"
+set schedule "always"
+set service "ALL"
+next
+end
+%{ endif }
 
 %{ if license_type == "byol" }
 --==Boundary==

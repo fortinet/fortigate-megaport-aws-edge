@@ -18,6 +18,8 @@ variable "fgt_fortiflex_token" {}
 variable "tag_name_prefix" {}
 variable "fgt_public_ip" {}
 variable "fgt_private_ip" {}
+variable "vpn_type" {}
+variable "vpn_remote_ip" {}
 variable "ca_cert" {}
 variable "fgt_key" {}
 variable "fgt_cert" {}

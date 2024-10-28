@@ -138,9 +138,12 @@ resource "random_password" "spoke-fgt" {
   special          = true
   override_special = "!@#$%^&*()"
 }
+
 resource "local_file" "mve_user_data_file" {
   content  = templatefile("${path.module}/fgt-userdata.tpl",
   {
+    vpn_type       = var.vpn_type
+    vpn_remote_ip  = var.vpn_remote_ip
     ca_cert        = var.ca_cert
     fgt_key        = var.fgt_key
     fgt_cert       = var.fgt_cert
@@ -162,19 +165,34 @@ resource "local_file" "mve_user_data_file" {
     license_file   = "${path.root}/${var.fgt_byol_license}"
     license_token  = var.fgt_fortiflex_token
   })
-  filename = "${path.root}/modules/megaport/mve_userdata.sh"
+  filename = "${path.root}/modules/megaport/mve_userdata_CLI.sh"
 }
 
-# resource "null_resource" "execute_user_data" {
-#   depends_on = [local_file.mve_user_data_file,megaport_mve.test_mve]
+resource "local_file" "mve_user_data_file2" {
+  content  = templatefile("${path.module}/fgt-userdata2.tpl",
+  {
+    vpn_type       = var.vpn_type
+    vpn_remote_ip  = var.vpn_remote_ip
+    ca_cert        = var.ca_cert
+    fgt_key        = var.fgt_key
+    fgt_cert       = var.fgt_cert
+    gui_port       = var.fgt_gui_port
+    sv_user        = var.sslvpn_username
+    sv_passwd      = random_password.spoke-fgt.result
+    sv_tunnel_ip   = var.sslvpn_tunnel_ip
 
-#   provisioner "remote-exec" {
-#     inline = [local_file.mve_user_data_file.content]
-#     connection {
-#       type        = "ssh"
-#       user        = "admin"
-#       private_key = tls_private_key.ed25519-example.private_key_pem
-#       host        = cidrhost(megaport_vxc.transit_vxc.csp_connections[0].customer_ip4_address,1)
-#     }
-#   }
-# }
+    fgt_inner_ip   = element(split("/", megaport_vxc.aws_vxc.csp_connections[0].customer_ip_address), 0) #We expect 169.254.1.1
+    inner_vlan     = 100 # Looking for megaport_vxc.aws_vxc.a_end.inner_vlan
+    fgt_asn        = 64512 #Should be b_end_partner_config.aws_config.asn
+    aws_bgp_ip     = element(split("/", megaport_vxc.aws_vxc.csp_connections[0].amazon_address), 0) #We expect 169.254.1.2
+    vgw_asn        = 64513 #Should be b_end_partner_config.aws_config.amazon_asn
+    dx_password    = "Megaport" #Should be b_end_partner_config.aws_config.auth_key
+
+    sv_port        = var.sslvpn_port
+    vpc_cidr       = var.vpc_cidr
+    license_type   = var.license_type
+    license_file   = "${path.root}/${var.fgt_byol_license}"
+    license_token  = var.fgt_fortiflex_token
+  })
+  filename = "${path.root}/modules/megaport/mve_userdata_GUI.sh"
+}

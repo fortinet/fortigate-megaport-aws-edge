@@ -7,6 +7,8 @@ variable "megaport_access_key" {}
 variable "megaport_secret_key" {}
 variable "vgw_id" {}
 
+variable "vpn_type" {}
+variable "vpn_remote_ip" {}
 variable "ca_cert" {}
 variable "fgt_key" {}
 variable "fgt_cert" {}
